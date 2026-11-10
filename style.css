@@ -243,6 +243,10 @@
    font: 700 19px Arial;
    color: #fff
  }
+ .social a svg {
+   width: 16px;
+   height: 16px
+ }
 
  .header {
    height: 100px;

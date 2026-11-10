@@ -119,6 +119,45 @@ topBtn.addEventListener("click", () =>
 document.getElementById("year").textContent = new Date().getFullYear();
 render();
 
+const statsSection = document.querySelector(".stats");
+if (
+  statsSection &&
+  "IntersectionObserver" in window &&
+  !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+) {
+  const counters = [...statsSection.querySelectorAll("[data-count]")];
+  counters.forEach((counter) => {
+    counter.textContent = `0${counter.dataset.suffix}`;
+  });
+
+  const counterObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        counterObserver.unobserve(entry.target);
+        counters.forEach((counter) => {
+          const target = Number(counter.dataset.count);
+          const suffix = counter.dataset.suffix;
+          const duration = 1500;
+          let startTime;
+
+          const updateCount = (time) => {
+            if (startTime === undefined) startTime = time;
+            const progress = Math.min((time - startTime) / duration, 1);
+            const easedProgress = 1 - (1 - progress) ** 3;
+            counter.textContent = `${Math.floor(target * easedProgress)}${suffix}`;
+            if (progress < 1) requestAnimationFrame(updateCount);
+          };
+
+          requestAnimationFrame(updateCount);
+        });
+      });
+    },
+    { threshold: 0.35 },
+  );
+  counterObserver.observe(statsSection);
+}
+
 // Scroll-triggered animations
 if ("IntersectionObserver" in window) {
   const animationConfig = {
